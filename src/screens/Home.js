@@ -102,18 +102,6 @@ const Home = () => {
     <View>
         <Text>Add Party</Text>
     </View>
-     <View>
-        <Text>Date</Text>
-    </View>
-    <View>
-        <Text>Add Party</Text>
-    </View>
-     <View>
-        <Text>Date</Text>
-    </View>
-    <View>
-        <Text>Add Party</Text>
-    </View>
     </View>
 
 
