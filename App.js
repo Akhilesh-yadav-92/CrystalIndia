@@ -6,7 +6,10 @@
  */
 
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import Home from './src/screens/Home';
+import Rootnavigation from './src/navigations/Rootnavigation';
+import * as eva from '@eva-design/eva';
+import { ApplicationProvider, Layout, Text,IconRegistry } from '@ui-kitten/components';
+import { EvaIconsPack } from '@ui-kitten/eva-icons';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -14,7 +17,10 @@ function App() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
- <Home/>
+<IconRegistry icons={EvaIconsPack} />
+  <ApplicationProvider {...eva} theme={eva.light}>
+    <Rootnavigation/>
+  </ApplicationProvider>
     </View>
   );
 }

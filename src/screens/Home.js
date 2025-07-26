@@ -8,7 +8,9 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-
+import { colors } from '../constants';
+import CustomHeader from '../components/reusable/CustomHeader';
+import { Layout,Card } from '@ui-kitten/components';
 // Dynamic columns
 const itemColumns = ['Item1', 'Item2', 'Item3', 'Item4', 'Item5'];
 
@@ -63,7 +65,7 @@ const initialData = [
 
 const COLUMN_WIDTH = 100;
 
-const Home = () => {
+const Home = ({navigation}) => {
   const [tableData, setTableData] = useState(initialData);
   const [editableRow, setEditableRow] = useState(null); // store row index
 
@@ -78,8 +80,13 @@ const Home = () => {
   };
 
   return (
-    <View style={styles.container}>
-<View style={{flex:1,padding:8}}>
+    <Layout level='1' style={styles.container}>
+      <CustomHeader
+        title='Home'
+        onBackPress={() => navigation.goBack()}
+        onRightPress={() => console.log('Settings clicked')}
+      />
+{/* <View style={{flex:1,padding:8}}>
     <View style={{alignSelf:'center'}}>
         <Text>Order</Text>
     </View>
@@ -105,8 +112,46 @@ const Home = () => {
     </View>
 
 
-</View>
-<View style={{flex:3,backgroundColor:'green'}}>
+</View> */}
+
+ <Card
+        style={{
+          borderRadius: 12,
+          padding: 16,
+          elevation: 4,
+        }}
+      >
+        {/* Title */}
+        <Text category="h6" style={{ alignSelf: 'center', marginBottom: 12 }}>
+          Order
+        </Text>
+
+        {/* Row 1 */}
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginBottom: 8,
+          }}
+        >
+          <Text category="label">Date</Text>
+          <Text category="s1">43543543</Text>
+        </View>
+
+        {/* Row 2 */}
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Text category="label">Party</Text>
+          <Text category="s1">Add Party</Text>
+        </View>
+      </Card>
+
+<View style={{flex:3}}>
+    
     <ScrollView horizontal>
         <View>
           {/* Header */}
@@ -135,10 +180,10 @@ const Home = () => {
             {tableData.map((row, rowIndex) => (
               <View key={rowIndex} style={styles.row}>
                 <View style={[styles.cell,{justifyContent:'center'}]}>
-                  <Text  style={{alignSelf:'center'}}>{row.SrNo}</Text>
+                  <Text  style={[styles.fontStyle,{alignSelf:'center'}]}>{row.SrNo}</Text>
                 </View>
                 <View style={[styles.cell,{justifyContent:'center'}]}>
-                  <Text style={{alignSelf:'center'}}>{row.PartyName}</Text>
+                  <Text style={[styles.fontStyle,{alignSelf:'center'}]}>{row.PartyName}</Text>
                 </View>
                 <View style={styles.cell}>
                   <TouchableOpacity
@@ -172,7 +217,7 @@ const Home = () => {
 </View>
 
       
-    </View>
+    </Layout>
   );
 };
 
@@ -181,7 +226,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // marginTop: 50,
-    padding: 10,
+    // padding: 10,
     backgroundColor: '#f0f0f0',
   },
   row: {
@@ -195,7 +240,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   headerCell: {
-    backgroundColor: '#007AFF',
+    // backgroundColor: '#007AFF',
+    backgroundColor:colors.dark_theme
   },
   headerText: {
     fontWeight: 'bold',
@@ -203,7 +249,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   editBtn: {
-    backgroundColor: '#ff9500',
+    backgroundColor: colors.light_bgBtn,
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 4,
@@ -232,6 +278,7 @@ const styles = StyleSheet.create({
   inputReadonly: {
     backgroundColor: '#eee',
   },
+  fontStyle:colors.light_textColor,
 });
 
 export default Home;
