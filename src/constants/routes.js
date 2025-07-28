@@ -10,4 +10,7 @@ export default {
   HOME_TAB: 'Home Tab',
   HOME_DRAWER: 'Home Drawer',
 
+  ADD_CUSTOMER:'Add Customer',
+  ADD_ITEMS:'Add Items'
+
 };

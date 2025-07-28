@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Icon, TopNavigation, TopNavigationAction, Text } from '@ui-kitten/components';
+import { colors } from '../../constants';
 
 // Left back icon
 const BackIcon = (props) => (
@@ -37,7 +38,8 @@ const CustomHeader = ({ title, onBackPress, onRightPress }) => {
 const styles = StyleSheet.create({
   header: {
     elevation: 4,
-    backgroundColor: '#fff',
+    backgroundColor:colors.light_theme,
+  
   },
 });
 

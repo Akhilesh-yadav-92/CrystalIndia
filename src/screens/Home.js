@@ -1,284 +1,269 @@
 import React, { useState } from 'react';
 import {
   View,
-  Text,
+  
   TextInput,
   TouchableOpacity,
   ScrollView,
-  StyleSheet,
-  Alert,
 } from 'react-native';
-import { colors } from '../constants';
+import { Layout, Text, Card, Divider } from '@ui-kitten/components';
 import CustomHeader from '../components/reusable/CustomHeader';
-import { Layout,Card } from '@ui-kitten/components';
-// Dynamic columns
-const itemColumns = ['Item1', 'Item2', 'Item3', 'Item4', 'Item5'];
+import { initialOrderData } from '../data/order';
+import { routes } from '../constants';
+// const initialData = [
+//   { id: 1, name: 'A', items: {  }, editing: false },
+//   { id: 2, name: 'B', items: { }, editing: false },
+//   { id: 3, name: 'C', items: { }, editing: false },
+//    { id: 4, name: 'D', items: { }, editing: false },
+//     { id: 5, name: 'E', items: { }, editing: false },
+//      { id: 6, name: 'F', items: { }, editing: false },
+// ];
 
-// Sample data
-const initialData = [
-  {
-    SrNo: 1,
-    PartyName: 'Party A',
-    Items: { Item1: '10', Item2: '20', Item3: '15', Item4: '5', Item5: '12' },
-  },
-  {
-    SrNo: 2,
-    PartyName: 'Party B',
-    Items: { Item1: '12', Item2: '22', Item3: '11', Item4: '4', Item5: '18' },
-  },
-  {
-    SrNo: 3,
-    PartyName: 'Party C',
-    Items: { Item1: '14', Item2: '28', Item3: '17', Item4: '6', Item5: '10' },
-  },
-  {
-    SrNo: 1,
-    PartyName: 'Party A',
-    Items: { Item1: '10', Item2: '20', Item3: '15', Item4: '5', Item5: '12' },
-  },
-  {
-    SrNo: 2,
-    PartyName: 'Party B',
-    Items: { Item1: '12', Item2: '22', Item3: '11', Item4: '4', Item5: '18' },
-  },
-  {
-    SrNo: 3,
-    PartyName: 'Party C',
-    Items: { Item1: '14', Item2: '28', Item3: '17', Item4: '6', Item5: '10' },
-  },
-  {
-    SrNo: 1,
-    PartyName: 'Party A',
-    Items: { Item1: '10', Item2: '20', Item3: '15', Item4: '5', Item5: '12' },
-  },
-  {
-    SrNo: 2,
-    PartyName: 'Party B',
-    Items: { Item1: '12', Item2: '22', Item3: '11', Item4: '4', Item5: '18' },
-  },
-  {
-    SrNo: 3,
-    PartyName: 'Party C',
-    Items: { Item1: '14', Item2: '28', Item3: '17', Item4: '6', Item5: '10' },
-  },
-];
 
-const COLUMN_WIDTH = 100;
+export default function Home({navigation}) {
+  const [data, setData] = useState(initialOrderData);
+  const [orderInputs, setOrderInputs] = useState({});
 
-const Home = ({navigation}) => {
-  const [tableData, setTableData] = useState(initialData);
-  const [editableRow, setEditableRow] = useState(null); // store row index
+  // Get all item keys dynamically
+  const allItemKeys = Array.from(
+    new Set(data.flatMap(customer => Object.keys(customer.items)))
+  ).sort((a, b) =>
+    parseInt(a.replace('item', '')) - parseInt(b.replace('item', ''))
+  );
 
-  const handleEdit = (index) => {
-    setEditableRow(index);
+  const toggleEdit = (index) => {
+    const newData = [...data];
+    newData[index].editing = !newData[index].editing;
+
+    if (newData[index].editing) {
+      allItemKeys.forEach(key => {
+        if (!(key in newData[index].items)) {
+          newData[index].items[key] = '';
+        }
+      });
+    }
+
+    setData(newData);
   };
 
-  const handleChange = (rowIndex, key, value) => {
-    const updatedData = [...tableData];
-    updatedData[rowIndex].Items[key] = value;
-    setTableData(updatedData);
+  const handleQuantityChange = (index, key, value) => {
+    const newData = [...data];
+    newData[index].items[key] = value;
+    setData(newData);
+  };
+
+  const handleOrderInputChange = (id, value) => {
+    setOrderInputs(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleAddOrderColumn = () => {
+    const newData = [...data];
+
+    // Determine next available item key
+    const maxItemNum = Math.max(
+      0,
+      ...allItemKeys.map(k => parseInt(k.replace('item', '')) || 0)
+    );
+    const newItemKey = `item${maxItemNum + 1}`;
+
+    // Add the new item value (from input) to each customer
+    newData.forEach(customer => {
+      const orderValue = orderInputs[customer.id];
+      if (orderValue && orderValue.trim() !== '') {
+        customer.items[newItemKey] = orderValue;
+      } else {
+        customer.items[newItemKey] = '';
+      }
+    });
+
+    // Clear inputs
+    setOrderInputs({});
+    setData(newData);
   };
 
   return (
-    <Layout level='1' style={styles.container}>
-      <CustomHeader
-        title='Home'
-        onBackPress={() => navigation.goBack()}
-        onRightPress={() => console.log('Settings clicked')}
-      />
-{/* <View style={{flex:1,padding:8}}>
-    <View style={{alignSelf:'center'}}>
-        <Text>Order</Text>
-    </View>
+    <ScrollView>
+      {/* Order Input Table */}
+      <CustomHeader title="Order"/>
+<View style={{padding:8}}>
 
-    <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-    <View>
-        <Text>Date</Text>
-    </View>
-    <View>
-        <Text>43543543</Text>
-    </View>
-    </View>
+ {/* <View style={{ flexDirection: 'row', justifyContent:'flex-end' }}>
+       
+        <Text category='s1' appearance='hint' style={{ textDecorationLine: 'underline' }}>
+          clear
+        </Text>
+      </View> */}
 
-
-
- <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-    <View>
-        <Text>Date</Text>
-    </View>
-    <View>
-        <Text>Add Party</Text>
-    </View>
-    </View>
-
-
-</View> */}
-
- <Card
-        style={{
-          borderRadius: 12,
-          padding: 16,
-          elevation: 4,
-        }}
-      >
-        {/* Title */}
-        <Text category="h6" style={{ alignSelf: 'center', marginBottom: 12 }}>
-          Order
+      {/* Salesman and Date Row */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 5 }}>
+        <Text category='s1' style={{ fontWeight: 'bold'}}>
+          Salesman: <Text category='s2'>Excellent Softwares</Text>
         </Text>
 
-        {/* Row 1 */}
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginBottom: 8,
-          }}
+        <Text category='s1' style={{ fontWeight: 'bold' }}>
+          Date: <Text category='s2'>{new Date().toLocaleDateString()}</Text>
+        </Text>
+      </View>
+
+      {/* Catalogue and Add Customer Buttons */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+        <Card style={{ width: '45%' }}
+        onPress={()=>navigation.navigate(routes.ADD_ITEMS)}
         >
-          <Text category="label">Date</Text>
-          <Text category="s1">43543543</Text>
-        </View>
-
-        {/* Row 2 */}
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}
+          <Text category='s1' style={{ textAlign: 'center', fontWeight: 'bold' }}>
+            Catalogue
+          </Text>
+        </Card>
+        <Card style={{ width: '45%' }}
+        
+        onPress={()=>{
+          navigation.navigate(routes.ADD_CUSTOMER)
+        }}
         >
-          <Text category="label">Party</Text>
-          <Text category="s1">Add Party</Text>
-        </View>
-      </Card>
+          <Text category='s1' style={{ textAlign: 'center', fontWeight: 'bold' }}>
+            Add Customer
+          </Text>
+        </Card>
+      </View>
 
-<View style={{flex:3}}>
-    
-    <ScrollView horizontal>
-        <View>
-          {/* Header */}
-          <View style={styles.row}>
-            <View style={[styles.cell, styles.headerCell]}>
-              <Text style={styles.headerText}>SrNo</Text>
-            </View>
-            <View style={[styles.cell, styles.headerCell]}>
-              <Text style={styles.headerText}>Party Name</Text>
-            </View>
-            <View style={[styles.cell, styles.headerCell]}>
-              <Text style={styles.headerText}>Edit</Text>
-            </View>
-            {itemColumns.map((col, index) => (
-              <View key={index} style={[styles.cell, styles.headerCell]}>
-                <Text style={styles.headerText}>{col}</Text>
-              </View>
-            ))}
-          </View>
+     
 
-          {/* Body */}
-          <ScrollView 
-        //   style={{ maxHeight: 400 }}
-          >
-            
-            {tableData.map((row, rowIndex) => (
-              <View key={rowIndex} style={styles.row}>
-                <View style={[styles.cell,{justifyContent:'center'}]}>
-                  <Text  style={[styles.fontStyle,{alignSelf:'center'}]}>{row.SrNo}</Text>
-                </View>
-                <View style={[styles.cell,{justifyContent:'center'}]}>
-                  <Text style={[styles.fontStyle,{alignSelf:'center'}]}>{row.PartyName}</Text>
-                </View>
-                <View style={styles.cell}>
-                  <TouchableOpacity
-                    onPress={() => handleEdit(rowIndex)}
-                    style={styles.editBtn}
-                  >
-                    <Text style={styles.editText}>Edit</Text>
-                  </TouchableOpacity>
-                </View>
+      {/* Items and Quantity Section */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+           <Card style={{ width: '33%' }}>
+          <Text category='s2' style={{ textAlign: 'center', fontWeight: 'bold' }}>
+            Number of Customer
+          </Text>
+          <Text category='s2' style={{ textAlign: 'center' }}>34</Text>
+        </Card>
+        <Card style={{ width: '33%' }}>
+          <Text category='s2' style={{ fontWeight: 'bold' }}>No of Items</Text>
+          <Text category='s2' style={{ textAlign: 'center' }}>34</Text>
+        </Card>
 
-                {itemColumns.map((key, colIndex) => (
-                  <View key={colIndex} style={styles.cell}>
-                    <TextInput
-                      value={row.Items[key]}
-                      editable={editableRow === rowIndex}
-                      onChangeText={(val) => handleChange(rowIndex, key, val)}
-                      style={[
-                        styles.input,
-                        editableRow === rowIndex ? styles.inputEditable : styles.inputReadonly,
-                      ]}
-                      keyboardType="numeric"
-                    />
-                  </View>
-                ))}
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-      </ScrollView>
+        <Card style={{ width: '33%' }}>
+          <Text category='s2' style={{ fontWeight: 'bold' }}>No of Quantity</Text>
+          <Text category='s2' style={{ textAlign: 'center' }}>55</Text>
+        </Card>
+      </View>
+
 
 </View>
 
-      
-    </Layout>
-  );
-};
 
-// Styles
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // marginTop: 50,
-    // padding: 10,
-    backgroundColor: '#f0f0f0',
-  },
-  row: {
-    flexDirection: 'row',
-  },
-  cell: {
-    width: COLUMN_WIDTH,
-    borderWidth: 0.5,
-    borderColor: '#ccc',
-    padding: 8,
-    backgroundColor: '#fff',
-  },
-  headerCell: {
-    // backgroundColor: '#007AFF',
-    backgroundColor:colors.dark_theme
-  },
-  headerText: {
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
-  },
-  editBtn: {
-    backgroundColor: colors.light_bgBtn,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 4,
-    height:40,
-    justifyContent:'center',
-    alignItems:'center'
 
-  },
-  editText: {
-    color: '#fff',
-    textAlign: 'center',
-  },
-  input: {
-    height: 40,
-    fontSize: 12,
-    paddingTop:8,   
-    borderRadius:4     // smaller font size
-  
+      <ScrollView horizontal>
+        <View style={{ borderWidth: 1, margin: 10 }}>
     
-  },
-  inputEditable: {
-    backgroundColor: '#fff',
-    borderColor: '#007AFF',
-    borderWidth: 1,
-  },
-  inputReadonly: {
-    backgroundColor: '#eee',
-  },
-  fontStyle:colors.light_textColor,
-});
+          <View style={{ flexDirection: 'row', backgroundColor: '#f0f0f0' }}>
+            <Cell text="Sr.No" bold />
+            <Cell text="Customer" bold />
+            <Cell text="Order" bold />
+          </View>
 
-export default Home;
+      
+          {data.map((customer, index) => (
+            <View key={customer.id} style={{ flexDirection: 'row' }}>
+              <Cell text={String(index + 1)} />
+              <Cell text={customer.name} />
+              <Cell>
+                <TextInput
+                  value={orderInputs[customer.id] ?? ''}
+                  onChangeText={(text) => handleOrderInputChange(customer.id, text)}
+                  keyboardType="numeric"
+                  style={{
+                    borderWidth: 1,
+                    width: 60,
+                    height: 30,
+                    textAlign: 'center',
+                  }}
+                />
+              </Cell>
+            </View>
+          ))}
+
+          {/* OK Button Row */}
+
+          <View style={{ flexDirection: 'row' }}>
+            <View style={{ width: 160 }} /> {/* Empty space under first 2 columns */}
+            <View style={{ alignItems: 'center', justifyContent: 'center', padding: 6 }}>
+              <TouchableOpacity onPress={handleAddOrderColumn}>
+                <Text style={{ color: 'green', fontWeight: 'bold' }}>OK</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* Main Table */}
+      <ScrollView horizontal>
+        <View style={{ borderWidth: 1, margin: 10 }}>
+          <View style={{ flexDirection: 'row', backgroundColor: '#eee' }}>
+            <Cell text="Sr.No" bold />
+            <Cell text="Customer" bold />
+            <Cell text="Edit" bold />
+            {allItemKeys.map(key => (
+              <Cell key={key} text={key.replace('item', 'Item ')} bold />
+            ))}
+          </View>
+
+          {data.map((customer, index) => (
+            <View key={customer.id} style={{ flexDirection: 'row' }}>
+              <Cell text={String(index + 1)} />
+              <Cell text={customer.name} />
+              <Cell>
+                <TouchableOpacity onPress={() => toggleEdit(index)}>
+                  <Text style={{ color: 'blue' }}>
+                    {customer.editing ? 'Update' : 'Edit'}
+                  </Text>
+                </TouchableOpacity>
+              </Cell>
+
+              {allItemKeys.map((key) => {
+                const value = customer.items[key] ?? '';
+                return (
+                  <Cell key={key}>
+                    {customer.editing ? (
+                      <TextInput
+                        style={{
+                          borderWidth: 1,
+                          width: 50,
+                          height: 30,
+                          textAlign: 'center',
+                          padding: 2,
+                        }}
+                        value={value}
+                        keyboardType="numeric"
+                        onChangeText={(text) =>
+                          handleQuantityChange(index, key, text)
+                        }
+                      />
+                    ) : (
+                      <Text>{value}</Text>
+                    )}
+                  </Cell>
+                );
+              })}
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </ScrollView>
+  );
+}
+
+const Cell = ({ text = '', bold = false, children }) => (
+  <View
+    style={{
+      borderWidth: 1,
+      padding: 6,
+      minWidth: 80,
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}
+  >
+    {children || (
+      <Text style={{ fontWeight: bold ? 'bold' : 'normal' ,fontSize:12}}>{text}</Text>
+    )}
+  </View>
+);
